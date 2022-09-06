@@ -2,12 +2,18 @@
 import java.util.concurrent.locks.Lock;
 public class LockThread extends Thread
 {
-    private Lock l;
+    private TASLock TAS;
+    private TTASLock TTAS;
+    private Backoff backoff;
 	private int maxAccesses;
-    private static long elapsedTime;
+    public long TASTime;
+    public long TTASTime;
+    public long BackoffTime;
 	Thread t;
-	public LockThread(Lock lock, int id, int max, int min){
-        l = lock;
+	public LockThread(TASLock TAS, TTASLock TTAS, Backoff backoff, int id, int max, int min){
+        this.TAS = TAS;
+        this.TTAS = TTAS;
+        this.backoff = backoff;
         this.setName(String.valueOf(id));
         maxAccesses = (int)(Math.random() * (max - min + 1) + min);
 	}
@@ -18,23 +24,33 @@ public class LockThread extends Thread
         //access CS a variable no. of times
 		for(int i = 0; i < maxAccesses; i++){
             final long startTime = System.currentTimeMillis();
-            l.lock();
+            TAS.lock();
             try {
                 Thread.sleep(100);//sleep for 100ms
             } catch (InterruptedException e) {}
-            l.unlock();
+            TAS.unlock();
             final long endTime = System.currentTimeMillis();
-            setElapsedTime(endTime - startTime);
+            TASTime += endTime - startTime;
+        }
+        for(int i = 0; i < maxAccesses; i++){
+            final long startTime = System.currentTimeMillis();
+            TTAS.lock();
+            try {
+                Thread.sleep(100);//sleep for 100ms
+            } catch (InterruptedException e) {}
+            TTAS.unlock();
+            final long endTime = System.currentTimeMillis();
+            TTASTime += endTime - startTime;
+        }
+        for(int i = 0; i < maxAccesses; i++){
+            final long startTime = System.currentTimeMillis();
+            backoff.lock();
+            try {
+                Thread.sleep(100);//sleep for 100ms
+            } catch (InterruptedException e) {}
+            backoff.unlock();
+            final long endTime = System.currentTimeMillis();
+            BackoffTime += endTime - startTime;
         }
 	}
-    public static void setElapsedTime(long time){
-        elapsedTime += time;
-    }
-    public static long getElapsedTime() {
-        return elapsedTime;
-    }
-
-    public static void resetElapsedTime() {
-        elapsedTime = 0;
-    }
 }
