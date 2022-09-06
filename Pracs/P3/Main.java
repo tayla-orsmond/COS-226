@@ -29,7 +29,10 @@ public class Main {
                     }
                 }
                 totalElapsedTime = LockThread.getElapsedTime();
-                System.out.print(totalElapsedTime + ", ");
+                System.out.print(totalElapsedTime);
+                if(j != threadCounts.length - 1){
+                    System.out.print(", ");
+                }
             }
             System.out.print("] time in ms");
             System.out.println();
