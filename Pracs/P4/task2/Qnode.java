@@ -8,6 +8,7 @@ public class Qnode {
     public Qnode() {
         locked = false;
         next = null;
+        prev = null;
         parent = (Marshal) Thread.currentThread();
     }
     

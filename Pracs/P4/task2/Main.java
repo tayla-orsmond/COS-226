@@ -1,7 +1,7 @@
 public class Main {
     public static void main(String args[]){
         int CAP = 5;
-        MCSQueue queue = new MCSQueue();
+        Timeout queue = new Timeout();
         VotingStation vs = new VotingStation(CAP, queue);
         Marshal threads [] = new Marshal[CAP];
 
