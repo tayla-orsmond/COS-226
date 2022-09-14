@@ -4,33 +4,35 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 //Tayla Orsmond u2147456
 public class MCSQueue implements Lock{
-    private AtomicReference<MCSNode> tail;
-    private ThreadLocal<MCSNode> myNode;
+    private AtomicReference<Qnode> tail;
+    private ThreadLocal<Qnode> myNode;
     public MCSQueue() {
-        tail = new AtomicReference<MCSNode>(null);
-        myNode = new ThreadLocal<MCSNode>() {
-            protected MCSNode initialValue() {
-                return new MCSNode();
+        tail = new AtomicReference<Qnode>(null);
+        myNode = new ThreadLocal<Qnode>() {
+            protected Qnode initialValue() {
+                return new Qnode();
             }
         };
     }
     @Override
     public void lock() {
-        MCSNode node = myNode.get();
-        MCSNode pred = tail.getAndSet(node);
-        if (pred != null) {
+        Qnode node = myNode.get();
+        Qnode pred = tail.getAndSet(node);
+		System.out.println("Thread-"+ Thread.currentThread().getName() + " with Person-" + ((Marshal) Thread.currentThread()).getNo() + " entered the voting station.");
+        if(pred != null) {
             node.setLocked(true);
             pred.setNext(node);
+            node.setPrev(pred);
             while (node.isLocked()) {
                 // spin
             }
         }
-        
     }
 
     @Override
     public void unlock() {
-        MCSNode node = myNode.get();
+        printQueue();
+        Qnode node = myNode.get();
         if (node.getNext() == null) {
             if (tail.compareAndSet(node, null)) {
                 return;
@@ -39,10 +41,25 @@ public class MCSQueue implements Lock{
                 // spin
             }
         }
+        node.getNext().setPrev(null);
         node.getNext().setLocked(false);
         node.setNext(null);
     }
-
+    public void printQueue(){
+        Qnode node = tail.get();
+        System.out.print("Queue: ");
+        while(node != null){
+            System.out.print("{Thread-"+ node.parent.getName() + " with Person-" + node.parent.getNo() + "}");
+            if(node.getPrev() != null){
+                System.out.print("-> ");
+            }
+            else{
+                System.out.println(" [Head]");
+            }
+            node = node.getPrev();
+        }
+        System.out.println();
+    }
     @Override
     public void lockInterruptibly() throws InterruptedException {
         // TODO Auto-generated method stub

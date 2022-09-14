@@ -4,14 +4,14 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 //Tayla Orsmond u2147456
 public class Timeout implements Lock {
-    private AtomicReference<MCSNode> tail;
-    private ThreadLocal<MCSNode> myNode;
-    static MCSNode AVAILABLE;
+    private AtomicReference<Qnode> tail;
+    private ThreadLocal<Qnode> myNode;
+    static Qnode AVAILABLE;
     public Timeout() {
-        tail = new AtomicReference<MCSNode>(null);
-        myNode = new ThreadLocal<MCSNode>() {
-            protected MCSNode initialValue() {
-                return new MCSNode();
+        tail = new AtomicReference<Qnode>(null);
+        myNode = new ThreadLocal<Qnode>() {
+            protected Qnode initialValue() {
+                return new Qnode();
             }
         };
     }
@@ -19,13 +19,13 @@ public class Timeout implements Lock {
     public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
         long start = System.currentTimeMillis();
         long timeout = unit.toMillis(time);
-        MCSNode node = myNode.get();
-        MCSNode next = tail.getAndSet(node);
+        Qnode node = myNode.get();
+        Qnode next = tail.getAndSet(node);
         if(next == null || next.getNext() == AVAILABLE){
             return true;
         }
         while(System.currentTimeMillis() - start < timeout){
-            MCSNode nextNext = next.getNext();
+            Qnode nextNext = next.getNext();
             if(nextNext == AVAILABLE){
                 return true;
             }
@@ -41,7 +41,7 @@ public class Timeout implements Lock {
 
     @Override
     public void unlock() {
-        MCSNode node = myNode.get();
+        Qnode node = myNode.get();
         if(!tail.compareAndSet(node, null)){
             node.setNext(AVAILABLE);
         }
