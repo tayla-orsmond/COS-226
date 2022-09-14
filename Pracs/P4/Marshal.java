@@ -1,15 +1,21 @@
+//Tayla Orsmond u2147456
 public class Marshal extends Thread {
 
     private VotingStation vs;
-
-	Marshal(VotingStation _vs)
+	private int numVoters;
+	
+	Marshal(VotingStation vs, int numVoters)
 	{
-		vs = _vs ;
+		this.vs = vs;
+		this.numVoters = numVoters;
 	}
 
 	@Override
 	public void run()
 	{
-
+		for(int i = 0; i < numVoters; i++)
+		{
+			vs.castBallot();
+		}
 	}
 }
