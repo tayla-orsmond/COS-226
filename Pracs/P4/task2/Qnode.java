@@ -11,6 +11,12 @@ public class Qnode {
         prev = null;
         parent = (Marshal) Thread.currentThread();
     }
+    public Qnode(Marshal p) {
+        locked = false;
+        next = null;
+        prev = null;
+        parent = p;
+    }
     
     public boolean isLocked() {
         return locked;

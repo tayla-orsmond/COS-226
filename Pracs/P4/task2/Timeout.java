@@ -4,9 +4,10 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 //Tayla Orsmond u2147456
 public class Timeout implements Lock {
-    private AtomicReference<Qnode> tail;
-    private ThreadLocal<Qnode> myNode;
-    static Qnode AVAILABLE;
+    AtomicReference<Qnode> tail;
+    ThreadLocal<Qnode> myNode;
+    static Qnode AVAILABLE = new Qnode(null);
+	long maxTimeout = 1000, minTimeout = 200;
     public Timeout() {
         tail = new AtomicReference<Qnode>(null);
         myNode = new ThreadLocal<Qnode>() {
@@ -16,32 +17,37 @@ public class Timeout implements Lock {
         };
     }
     @Override
-    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
-        long start = System.currentTimeMillis();
-        long timeout = unit.toMillis(time);
-        Qnode node = myNode.get();
+    public boolean tryLock() {
+        Qnode node = new Qnode();
+        myNode.set(node);
         Qnode next = tail.getAndSet(node);
-        System.out.println("Tail: Thread-"+ tail.get().parent.getName());
+        System.out.println("Thread-"+ Thread.currentThread().getName() + " with Person-" + ((Marshal) Thread.currentThread()).getNo() + " entered the voting station.");
         if(next == null || next.getNext() == AVAILABLE){
-		    System.out.println("Thread-"+ Thread.currentThread().getName() + " with Person-" + ((Marshal) Thread.currentThread()).getNo() + " entered the voting station.");
+            AVAILABLE.setPrev(node);
+            node.setPrev(next);
             return true;
         }
+        long timeout = (long)(Math.random() * (maxTimeout - minTimeout) + minTimeout);
+        long start = System.currentTimeMillis();
         while(System.currentTimeMillis() - start < timeout){
             Qnode nextNext = next.getNext();
             if(nextNext == AVAILABLE){
-		        System.out.println("Thread-"+ Thread.currentThread().getName() + " with Person-" + ((Marshal) Thread.currentThread()).getNo() + " entered the voting station.");
+                AVAILABLE.setPrev(node);
+                node.setPrev(next);
                 return true;
             }
-            if(nextNext != null){
+            else if(nextNext != null){
                 next = nextNext;
             }
+            next.setPrev(node);
         }
         if(!tail.compareAndSet(node, next)){
+            next.setPrev(node);
             node.setNext(next);
         }
+        System.out.println("\t\t Thread-"+ Thread.currentThread().getName() + " with Person-" + ((Marshal) Thread.currentThread()).getNo() + " timed out.");
         return false;
     }
-
     @Override
     public void unlock() {
         printQueue();
@@ -51,17 +57,20 @@ public class Timeout implements Lock {
         }
     }
     public void printQueue(){
-        Qnode node = tail.get();
+        Qnode node = AVAILABLE.getPrev();
         System.out.print("Queue: ");
-        while(node != null){
+        while(node != null && node != tail.get()){
             System.out.print("{Thread-"+ node.parent.getName() + " with Person-" + node.parent.getNo() + "}");
-            if(node.getNext() != null || node.getNext() != AVAILABLE){
+            if(node.getPrev() != null && node != tail.get()){
                 System.out.print("-> ");
             }
             else{
-                System.out.println(" [Head]");
+                System.out.println(" [Tail]");
             }
-            node = node.getNext();
+            node = node.getPrev();
+        }
+        if(node == tail.get()){
+            System.out.print("{Thread-"+ node.parent.getName() + " with Person-" + node.parent.getNo() + "} [Tail]");
         }
         System.out.println();
     }
@@ -83,9 +92,8 @@ public class Timeout implements Lock {
     }
 
     @Override
-    public boolean tryLock() {
+    public boolean tryLock(long time, TimeUnit unit) throws InterruptedException {
         // TODO Auto-generated method stub
         return false;
     }
-    
 }
