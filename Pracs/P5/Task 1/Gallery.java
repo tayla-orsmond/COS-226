@@ -7,7 +7,6 @@ public class Gallery {
     //The list-based set of GalleryNodes that make up the Gallery
     private AtomicReference<GalleryNode<String>> head;
     private Lock lock = new ReentrantLock();
-    private int numNodes = 0;
 
     public Gallery(){
         this.head = new AtomicReference<>(null);
@@ -19,13 +18,11 @@ public class Gallery {
             GalleryNode<String> current = head.get();
             if(current == null){
                 head.set(newNode);
-                numNodes++;
             }else{
                 while(current.next != null){
                     current = current.next;
                 }
                 current.next = newNode;
-                numNodes++;
             }
             newNode.timeEntered = System.currentTimeMillis();
             System.out.println("Thread-" + Thread.currentThread().getName() + ": added " + newNode.value + ", " + newNode.timeLeft.get() + "ms");
@@ -47,38 +44,15 @@ public class Gallery {
                     }else{
                         previous.next = current.next;
                     }
-                    numNodes--;
                     break;
                 }
                 previous = current;
                 current = current.next;
             }
-            //System.out.println("(Thread-" + Thread.currentThread().getName() + ": removed " + node.value + ", " + node.timeLeft.get() + "ms)");
+            System.out.println("(Thread-" + Thread.currentThread().getName() + ": removed " + node.value + ", " + node.timeLeft.get() + "ms)");
         }finally{
             lock.unlock();
         }
-    }
-    public boolean contains(int key){
-        //Check if the gallery contains a node with the given key
-        lock.lock();
-        boolean isFound = false;
-        try{
-            GalleryNode<String> current = head.get();
-            while(current != null){
-                if(current.key == key){
-                    isFound = true;
-                    break;
-                }
-                current = current.next;
-            }
-        }finally{
-            lock.unlock();
-        }
-        return isFound;
-    }
-    public int size(){
-        //Return the number of nodes in the gallery
-        return numNodes;
     }
     public void printQueue(){
         //Print the gallery
