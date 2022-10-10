@@ -15,7 +15,5 @@ public class Main{
                 e.printStackTrace();
             }
         }
-        System.out.println("\n\nAll threads have finished. Final gallery:");
-        gallery.printQueue();
     }
 }

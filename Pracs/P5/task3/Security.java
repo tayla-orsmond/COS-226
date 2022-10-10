@@ -10,7 +10,7 @@ public class Security extends Thread{
     public Security(int ID, Gallery gallery){
         this.ID = ID;
         this.gallery = gallery;
-        this.myNodes = new LinkedList<>();
+        this.myNodes = new LinkedList<GalleryNode<String>>();
         this.setName(String.valueOf(ID));
     }
 
@@ -19,6 +19,7 @@ public class Security extends Thread{
             GalleryNode<String> newNode = new GalleryNode<>((ID + i), "P-" + ID + ":" + i);
             myNodes.add(newNode);
             gallery.add(newNode);
+            newNode.timeEntered = System.currentTimeMillis();
             newNode.spendTime();
             try{
                 Thread.sleep(200);
@@ -26,6 +27,14 @@ public class Security extends Thread{
                 e.printStackTrace();
             }
             //if any of my node's times are up, remove the node from the gallery
+            for(GalleryNode<String> node : myNodes){
+                if(node.timeLeft.get() <= 0){
+                    gallery.remove(node);
+                    myNodes.remove(node);
+                }
+            }
+        }
+        while(!myNodes.isEmpty()){
             for(GalleryNode<String> node : myNodes){
                 if(node.timeLeft.get() <= 0){
                     gallery.remove(node);

@@ -21,13 +21,6 @@ public class GalleryNode<T> {
         this.timeInGallery = (long) (Math.random() * (max - min) + min);
         this.timeLeft = new AtomicLong(timeInGallery);
     }
-    public GalleryNode(int key, T value, long time){
-        this.key = key;
-        this.value = value;
-        this.next = null;
-        this.timeInGallery = time;
-        this.timeLeft = new AtomicLong(timeInGallery);
-    }
 
     public void spendTime(){
         //spend time in the gallery

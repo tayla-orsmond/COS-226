@@ -12,45 +12,48 @@ public class Gallery {
         this.head = new AtomicReference<>(null);
     }
     public void add(GalleryNode<String> newNode){
-        //Add a node to the gallery
+        //Add a node to the gallery in the correct position
         lock.lock();
         try{
-            GalleryNode<String> current = head.get();
-            if(current == null){
-                head.set(newNode);
-            }else{
-                while(current.next != null){
-                    current = current.next;
-                }
-                current.next = newNode;
+            GalleryNode<String> curr = head.get();
+            GalleryNode<String> prev = null;
+            while(curr != null && curr.key < newNode.key){
+                prev = curr;
+                curr = curr.next;
             }
-            newNode.timeEntered = System.currentTimeMillis();
+            if(prev == null){
+                head.set(newNode);
+            }
+            else{
+                prev.next = newNode;
+            }
+            newNode.next = curr;
             System.out.println("Thread-" + Thread.currentThread().getName() + ": added " + newNode.value + ", " + newNode.timeLeft.get() + "ms");
-        }finally{
+        }
+        finally{
             lock.unlock();
         }
     }
     public void remove(GalleryNode<String> node){
         //Remove a node from the gallery
         lock.lock();
+        printQueue();
         try{
-            printQueue();
-            GalleryNode<String> current = head.get();
-            GalleryNode<String> previous = null;
-            while(current != null){
-                if(current.key == node.key){
-                    if(previous == null){
-                        head.set(current.next);
-                    }else{
-                        previous.next = current.next;
-                    }
-                    break;
-                }
-                previous = current;
-                current = current.next;
+            GalleryNode<String> curr = head.get();
+            GalleryNode<String> prev = null;
+            while(curr != null && curr.key != node.key){
+                prev = curr;
+                curr = curr.next;
             }
-            System.out.println("(Thread-" + Thread.currentThread().getName() + ": removed " + node.value + ", " + node.timeLeft.get() + "ms)");
-        }finally{
+            if(prev == null){
+                head.set(curr.next);
+            }
+            else{
+                prev.next = curr.next;
+            }
+            System.out.println("Thread-" + Thread.currentThread().getName() + ": removed " + node.value + ", " + node.timeLeft.get() + "ms");
+        }
+        finally{
             lock.unlock();
         }
     }
@@ -58,13 +61,14 @@ public class Gallery {
         //Print the gallery
         //Print the calling thread's id
         System.out.print("\nThread-" + Thread.currentThread().getName() + ": ");
-        GalleryNode<String> current = head.get();
-        while(current != null){
-            System.out.print("[" + current.value + ", "+ current.timeLeft.get() + " ms]");
-            if(current.next != null){
+        //Print the gallery
+        GalleryNode<String> curr = head.get();
+        while(curr != null){
+            System.out.print("[" + curr.value + ", "+ curr.timeLeft.get() + " ms]");
+            if(curr.next != null){
                 System.out.print(" -> ");
             }
-            current = current.next;
+            curr = curr.next;
         }
         System.out.println();
     }
