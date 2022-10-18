@@ -29,12 +29,15 @@ public class QThread extends Thread {
             }
         }
         else{
-            for(int i = 0; i < numOps || queue.size() > 0; i++){
+            for(int i = 0; i < numOps || (BoundedQueue.maxEnq > 0 || queue.size() > 0); i++){
                 try{
                     queue.deq();
                     Thread.sleep(rand.nextInt(maxSleep));
                 }catch(InterruptedException e){
                     e.printStackTrace();
+                }
+                if(BoundedQueue.maxEnq > 0 || queue.size() > 0){
+                    numOps = 0;
                 }
             }
         }

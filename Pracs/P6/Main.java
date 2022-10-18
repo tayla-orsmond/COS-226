@@ -1,7 +1,7 @@
 public class Main {
     public static void main(String[] args) {
         int numThreads = 10;
-        int numEnqers = 6;
+        int numEnqers = 5;
         int numOps = 5;
         int maxSleep = 1000;
         int capacity = 5;

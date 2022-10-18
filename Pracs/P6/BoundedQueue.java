@@ -37,7 +37,7 @@ public class BoundedQueue<T>{
             array[tail.get()] = item;
             tail.set((tail.get() + 1) % capacity);
             BoundedQueue.maxEnq--;
-            System.out.println("\t\tThread-" + Thread.currentThread().getName() + " enqueued " + item);
+            System.out.println("Thread-" + Thread.currentThread().getName() + " enqueued " + item);
             if(size.getAndIncrement() == 0){
                 wakeywakey = true;
             }
@@ -67,7 +67,7 @@ public class BoundedQueue<T>{
             item = array[index];
             array[index] = null;
             head.set((head.get() + 1) % capacity);
-            System.out.println("Thread-" + Thread.currentThread().getName() + " dequeued " + item + " QUEUE: " + this.toString());
+            System.out.println("\tThread-" + Thread.currentThread().getName() + " dequeued " + item + " QUEUE: " + this.toString());
             if(size.getAndDecrement() == capacity){
                 wakeywakey = true;
             }
