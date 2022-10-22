@@ -32,7 +32,9 @@ public class BoundedLockFreeQueue<T>{
                     tail.set((last + 1) % capacity);
                     size.incrementAndGet();
                     BoundedLockFreeQueue.maxEnq--;
-                    System.out.println("Thread-" + Thread.currentThread().getName() + " enqueued " + item);
+                    synchronized(System.out){
+                        System.out.println("Thread-" + Thread.currentThread().getName() + " enqueued " + item);
+                    }
                     return;
                 }   
             } catch(Exception e){
@@ -54,7 +56,9 @@ public class BoundedLockFreeQueue<T>{
                     array[first] = null;
                     head.set((head.get() + 1) % capacity);
                     size.decrementAndGet();
-                    System.out.println("\tThread-" + Thread.currentThread().getName() + " dequeued " + item + " QUEUE: " + this.toString());
+                    synchronized(System.out){
+                        System.out.println("\tThread-" + Thread.currentThread().getName() + " dequeued " + item + " QUEUE: " + this.toString());
+                    }
                     return item;
                 }
             } catch(Exception e){
