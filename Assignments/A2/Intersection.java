@@ -54,13 +54,13 @@ public class Intersection {
         while (true) {
             try {
                 trafficLight.acquire();
-                while (nextQueue.size() < maxQueueSize_next && !previousQueue.isEmpty() && trafficLight.getState() == TrafficLightState.GREEN) {
+                while (nextQueue.size() <= maxQueueSize_next && !previousQueue.isEmpty() && trafficLight.getState() == TrafficLightState.GREEN) {
                     Car car = previousQueue.remove();
                     if(car != null && !car.hasArrived()) {
                         nextQueue.add(car.drive());
                         TrafficThread.maxRuns.decrementAndGet();
                         synchronized(System.out){
-                            System.out.println("Car " + car.getName() + " passed through intersection: \u001b[34m" + name + "\u001b[0m" + previousQueue.toString() + " -> " + nextQueue.toString());
+                            System.out.println("Car " + car.getName() + " passed through intersection: \u001b[34m" + name + "\u001b[0m " + previousQueue.toString() + " -> " + nextQueue.toString());
                         }
                     }
                     
@@ -88,13 +88,13 @@ public class Intersection {
         while (true) {
             try {
                 trafficLight.acquire();
-                while (previousQueue.size() < maxQueueSize_previous && !nextQueue.isEmpty() && trafficLight.getState() == TrafficLightState.GREEN) {
+                while (previousQueue.size() <= maxQueueSize_previous && !nextQueue.isEmpty() && trafficLight.getState() == TrafficLightState.GREEN) {
                     Car car = nextQueue.remove();
                     if(car != null && !car.hasArrived()) {
                         previousQueue.add(car.drive());
                         TrafficThread.maxRuns.decrementAndGet();
                         synchronized(System.out){
-                            System.out.println("Car " + car.getName() + " passed through intersection: \u001b[34m" + name + "\u001b[0m" + nextQueue.toString() + " -> " + previousQueue.toString());
+                            System.out.println("Car " + car.getName() + " passed through intersection: \u001b[34m" + name + "\u001b[0m " + nextQueue.toString() + " -> " + previousQueue.toString());
                         }
                     }
                 }

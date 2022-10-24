@@ -38,14 +38,14 @@ public class TrafficThread extends Thread {
      */
     @Override
     public void run() {
-        for (int i = 0; i < maxRuns.get(); i++) {
+        while(maxRuns.get() > 0) {
             if (direction) {
                 intersection.moveNext();
             } else {
                 intersection.movePrevious();
             }
             try {
-                Thread.sleep(100);
+                Thread.sleep(200);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }

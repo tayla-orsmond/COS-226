@@ -9,7 +9,7 @@ public class Main {
         long RED_TIME = 2000;
         long YELLOW_TIME = 1000;
         long GREEN_TIME = 3000;
-        int NUM_CARS = 8;
+        int NUM_CARS = 10;
         int NUM_THREADS = 8;
         int Q1_MAX = 5;
         int Q2_MAX = 5;

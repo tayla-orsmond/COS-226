@@ -27,7 +27,6 @@ enum TrafficLightState {
 
 public class TrafficLight {
     private ReentrantLock lock;
-    private Condition isGreen;
     private volatile TrafficLightState state;
     private Timer timer;
     private long redTime, yellowTime, greenTime;
@@ -46,7 +45,6 @@ public class TrafficLight {
     public TrafficLight(long redTime, long yellowTime, long greenTime) {
         this.state = TrafficLightState.RED;
         this.lock = new ReentrantLock();
-        this.isGreen = lock.newCondition();
         this.timer = new Timer();
         this.redTime = redTime;
         this.yellowTime = yellowTime;
@@ -62,14 +60,7 @@ public class TrafficLight {
      * @throws InterruptedException
      */
     public void acquire() throws InterruptedException {
-        // lock.lock();
-        // try {
-        while (state != TrafficLightState.GREEN) {
-            // isGreen.await(200, TimeUnit.MILLISECONDS);
-        }
-        // } finally {
-        //     lock.unlock();
-        // }
+        while (state != TrafficLightState.GREEN) {}
         lock.lock();
     }
 
